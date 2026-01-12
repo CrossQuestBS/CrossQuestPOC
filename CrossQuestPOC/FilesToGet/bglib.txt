@@ -1,0 +1,10 @@
+BGLib.AppFlow.dll
+BGLib.Attributes.dll
+BGLib.ClassicStaticBatcher.dll
+BGLib.DotnetExtension.dll
+BGLib.FileStorage.dll
+BGLib.JsonExtension.dll
+BGLib.MetaRemoteAssets.dll
+BGLib.Notepad.dll
+BGLib.Polyglot.dll
+BGLib.UnityExtension.dll

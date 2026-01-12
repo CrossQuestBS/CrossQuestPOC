@@ -1,0 +1,5 @@
+OculusStudios.GraphQL.Client.dll
+OculusStudios.GraphQL.ClientInterface.dll
+OculusStudios.HierarchyIcons.dll
+OculusStudios.Platform.Core.dll
+OculusStudios.Platform.Oculus.dll

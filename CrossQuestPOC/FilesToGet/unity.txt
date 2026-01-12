@@ -1,0 +1,8 @@
+Unity.RenderPipeline.Universal.ShaderLibrary.dll
+Unity.RenderPipelines.Universal.2D.Runtime.dll
+Unity.RenderPipelines.Universal.Config.Runtime.dll
+Unity.RenderPipelines.Universal.Runtime.dll
+Unity.RenderPipelines.Universal.Shaders.dll
+Unity.Addressables.dll
+Unity.Profiling.Core.dll
+Unity.ResourceManager.dll
