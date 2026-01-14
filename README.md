@@ -2,6 +2,18 @@
 
 This is a proof of concept for an alternative Beat Saber Quest modding ecosystem.
 
+## How it works
+1. Gets list of assemblies from PC game (uses files in FilesToGet)
+2. Creates a new Unity Project using Unity Editor CLI (batchmode)
+3. Copy over files from UnityBaseProject to Unity Project
+4. Copy assemblies from PC game to Unity Project
+5. Install mods defined in ModFile provided
+6. Compile using Unity Editor CLI (batchmode)
+7. Extract IL2CPP and other configuration files compiled APK
+8. Copy over the extracted files to Quest Game APK
+9. Clear Game Cache to delete cached IL2CPP Metadata
+10. Installs game to device
+
 ## Requirements to run
 * Beat Saber Quest APK 1.42.0
 * Beat Saber PC game (Available through cross-buy)
@@ -72,3 +84,19 @@ Join CrossQuest Discord server!
 
 https://discord.gg/2vAFccFBsu
 
+## Known issues
+The current Proof of Concept is still WIP, and have made assumptions on the current game install.
+
+### Game does not install
+You can patch the base game once with [QuestPatcher application](https://github.com/Lauriethefish/QuestPatcher/releases) to get make the patch process work correctly and have the OBB files copied.
+
+Alternatively you can take backup of OBB files, uninstall game, and install the game again.
+
+### Path not found issues
+
+The compiled CLI needs to be running from `CrossQuestPOC/bin/Debug/net10.0` as there are some hardcoded paths.
+
+
+### Rust panic error?
+
+The POC does not check if Unity had a success compile, so there might be error if the compile failed and it tries to the patch the APK.
