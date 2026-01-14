@@ -13,6 +13,33 @@ This is a proof of concept for an alternative Beat Saber Quest modding ecosystem
    * Build using Cargo
 * [apktool](https://apktool.org/)
 
+
+## CLI
+
+### Running the POC
+
+```
+./CrossQuestPOC \
+    --unity-editor "UNITY_EXECUTABLE_PATH_HERE" \
+    --base-project "PATH_TO_UNITY_BASE_PROJECT" \
+    --pc-path "PATH_TO_BEATSABER_MANAGED_DLL_FOLDER" \ 
+    --mod-file "PATH_TO_MOD_DEFINITION_JSON" \
+    --build-path "PATH_FOR_COMPILED_APK.apk" \
+    --apk-path "PATH_FOR_BEATSABER_APK"
+```
+
+## Mod definition file
+
+```json
+[
+    {
+        "Id": "unique-id-folder-compatible-name",
+        "Name": "MOD NAME",
+        "Path": "PATH TO MOD DIRECTORY"
+    }
+]
+```
+
 ## Mods
 
 ### OculusPatcher
@@ -44,3 +71,4 @@ https://github.com/CrossQuestBS/ImageCoverExpander
 Join CrossQuest Discord server!
 
 https://discord.gg/2vAFccFBsu
+
