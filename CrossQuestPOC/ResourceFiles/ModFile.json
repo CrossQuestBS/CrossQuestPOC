@@ -2,21 +2,21 @@
   {
     "Id": "mod.quest-patch",
     "Name": "QuestPatch",
-    "Path": "/Users/maribell/BeatSaber/quest-ecosystem-v2/repositories/QuestPatch/"
+    "Path": ""
   },
   {
     "Id": "mod.oculus-patcher",
     "Name": "OculusPatcher",
-    "Path": "/Users/maribell/BeatSaber/quest-ecosystem-v2/repositories/OculusPatcher/"
+    "Path": ""
   },
   {
     "Id": "mod.image-cover-expander",
     "Name": "ImageCoverExpander",
-    "Path": "/Users/maribell/BeatSaber/quest-ecosystem-v2/repositories/ImageCoverExpander/"
+    "Path": ""
   },
   {
     "Id": "mod.custom-song-enabler",
     "Name": "CustomSongEnabler",
-    "Path": "/Users/maribell/BeatSaber/quest-ecosystem-v2/repositories/CustomSongEnabler/"
+    "Path": ""
   }
 ]
