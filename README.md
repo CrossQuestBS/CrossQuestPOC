@@ -38,3 +38,8 @@ https://github.com/CrossQuestBS/CustomSongEnabler
 First port of PC mod to test CrossQuest POC
 
 https://github.com/CrossQuestBS/ImageCoverExpander
+
+### Are you interested to help out with development, create mods or to test it out?
+Join CrossQuest Discord server!
+
+https://discord.gg/2vAFccFBsu
