@@ -90,7 +90,7 @@ The current Proof of Concept is still WIP, and have made assumptions on the curr
 ### Game does not install
 You can patch the base game once with [QuestPatcher application](https://github.com/Lauriethefish/QuestPatcher/releases) to get make the patch process work correctly and have the OBB files copied.
 
-Alternatively you can take backup of OBB files, uninstall game, and install the game again.
+Alternatively you can take backup of OBB files, uninstall game, and install the game again from the patched APK.
 
 ### Path not found issues
 
