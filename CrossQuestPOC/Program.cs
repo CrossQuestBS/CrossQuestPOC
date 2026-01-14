@@ -2,7 +2,29 @@
 
 using System.CommandLine;
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.RegularExpressions;
+using CrossQuestPOC;
+
+static void CopyFolder( string sourceFolder, string destFolder )
+{
+    if (!Directory.Exists( destFolder ))
+        Directory.CreateDirectory( destFolder );
+    string[] files = Directory.GetFiles( sourceFolder );
+    foreach (string file in files)
+    {
+        string name = Path.GetFileName( file );
+        string dest = Path.Combine( destFolder, name );
+        File.Copy( file, dest );
+    }
+    string[] folders = Directory.GetDirectories( sourceFolder );
+    foreach (string folder in folders)
+    {
+        string name = Path.GetFileName( folder );
+        string dest = Path.Combine( destFolder, name );
+        CopyFolder( folder, dest );
+    }
+}
 
 static string[] GetFiles(string folder, string filePath)
 {
@@ -82,6 +104,7 @@ static void CopyToUnityProject(string unityPath, string assembliesPath, Dictiona
         File.WriteAllText(linkPath, linkedFile);
     }
 }
+
 
 static void TryCompile(string unityEditorPath, string projectPath, string outputPath)
 {
@@ -197,19 +220,88 @@ static void InstallGame(string apkPath)
     proc.WaitForExit();
 }
 
-static void ModGame(string unityEditorExecutable, string unityProjectPath, string gamePath, string buildPath, string apkPath)
+static ModDefinition[] GetModDefintions(string path)
+{
+    string jsonString = File.ReadAllText(path);
+    return JsonSerializer.Deserialize<ModDefinition[]>(jsonString);
+}
+
+static void InstallMods(string unityProject, string modJson)
+{
+    var modDefintions = GetModDefintions(modJson);
+    var mods = Path.Join(unityProject, "Assets", "Plugins", "Mods");
+
+    Directory.CreateDirectory(mods);
+    
+    foreach (var modDef in modDefintions)
+    {
+        Console.WriteLine($"Installing mod: {modDef}");
+        if (Directory.Exists(modDef.Path) && !Directory.Exists(Path.Join(mods, modDef.Id)))
+        {
+            CopyFolder(modDef.Path, Path.Join(mods, modDef.Id));
+        }
+    }
+}
+
+static void CreateAndCopyBaseUnityProject(string unityEditorPath, string unityProjectPath, string newPath)
+{
+    var arguments = "-batchmode ";
+    arguments += $"-createProject \"{newPath}\" ";
+    arguments += "-quit -logfile - ";
+    
+    ProcessStartInfo startInfo = new ProcessStartInfo() { FileName = unityEditorPath, Arguments = arguments, RedirectStandardOutput = true, CreateNoWindow = true}; 
+    Process proc = new Process() { StartInfo = startInfo, };
+    proc.Start();
+
+    while (!proc.StandardOutput.EndOfStream)
+    {
+        string line = proc.StandardOutput.ReadLine();
+        Console.WriteLine(line);
+    }
+
+    var newAssets = Path.Join(newPath, "Assets");
+    var newProjectSettings = Path.Join(newPath, "ProjectSettings");
+    var newPackages = Path.Join(newPath, "Packages");
+    
+    Directory.Delete(newAssets, true);
+    Directory.Delete(newProjectSettings, true);
+    Directory.Delete(newPackages, true);
+    
+    var baseAssets = Path.Join(unityProjectPath, "Assets");
+    var baseProjectSettings = Path.Join(unityProjectPath, "ProjectSettings");
+    var basePackages = Path.Join(unityProjectPath, "Packages");
+
+
+    CopyFolder(baseAssets, newAssets);
+    CopyFolder(baseProjectSettings, newProjectSettings);
+    CopyFolder(basePackages, newPackages);
+}
+
+
+static void ModGame(string unityEditorExecutable, string unityProjectPath, string gamePath, string buildPath, string apkPath, string modFile)
 {
     Console.WriteLine($"Getting game assemblies from path: {gamePath}");
     Thread.Sleep(2000);
     var assembliesPC = GetAssembliesOculusPC(gamePath);
     
+    var parentPath = Directory.GetParent(unityProjectPath).FullName;
+    var newUnityPath = Path.Join(parentPath, Guid.NewGuid().ToString());
+    
+    Console.WriteLine($"Create a new Unity Project at path {unityProjectPath}");
+    Thread.Sleep(2000);
+    CreateAndCopyBaseUnityProject(unityEditorExecutable, unityProjectPath, newUnityPath);
+    
     Console.WriteLine($"Copying game assemblies from path: {gamePath} to {unityProjectPath}");
     Thread.Sleep(2000);
-    CopyToUnityProject(unityProjectPath, gamePath, assembliesPC);
+    CopyToUnityProject(newUnityPath, gamePath, assembliesPC);
+    
+    Console.WriteLine($"Installing mods to {newUnityPath}");
+    Thread.Sleep(2000);
+    InstallMods(newUnityPath, modFile);
     
     Console.WriteLine($"Compiling to build path: {buildPath}");
     Thread.Sleep(2000);
-    TryCompile(unityEditorExecutable, unityProjectPath, buildPath);
+    TryCompile(unityEditorExecutable, newUnityPath, buildPath);
     
     Console.WriteLine($"Extracting APK from: {buildPath}");
     Thread.Sleep(2000);
@@ -223,9 +315,6 @@ static void ModGame(string unityEditorExecutable, string unityProjectPath, strin
     Thread.Sleep(2000);
     InstallGame(apkPath);
 }
-
-string projectDirectory = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
-
 
 Option<string> unityEditorExecutable = new("--unity-editor")
 {
@@ -247,6 +336,15 @@ Option<string> beatsaberMonoPath = new("--pc-path")
     Description = "Path to Beat Saber PC game",
 };
 
+Option<string> modList = new("--mod-file")
+{
+    Description = "Path to json file containing mod information",
+};
+
+Option<string> buildPath = new("--build-path")
+{
+    Description = "Path to buildPath",
+};
 
 
 RootCommand rootCommand = new("Patches Beat Saber on Quest using CrossQuest");
@@ -254,18 +352,23 @@ rootCommand.Options.Add(unityEditorExecutable);
 rootCommand.Options.Add(baseProjectPath);
 rootCommand.Options.Add(beatsaberApkPath);
 rootCommand.Options.Add(beatsaberMonoPath);
+rootCommand.Options.Add(modList);
+rootCommand.Options.Add(buildPath);
+
 
 rootCommand.SetAction(parseResult =>
 {
-    var buildPath = Path.Join(projectDirectory, "ResourceFiles", "modified-beat-saber.apk");
-    string unityEditorPath = parseResult.GetRequiredValue(unityEditorExecutable);
-    string projectPath = parseResult.GetRequiredValue(baseProjectPath);
-    string apkPath = parseResult.GetRequiredValue(beatsaberApkPath);
-    string monoPath = parseResult.GetRequiredValue(beatsaberMonoPath);
-    ModGame(unityEditorPath, projectPath, monoPath, buildPath, apkPath);
+    var unityEditorPath = parseResult.GetRequiredValue(unityEditorExecutable);
+    var projectPath = parseResult.GetRequiredValue(baseProjectPath);
+    var apkPath = parseResult.GetRequiredValue(beatsaberApkPath);
+    var monoPath = parseResult.GetRequiredValue(beatsaberMonoPath);
+    var modFile = parseResult.GetRequiredValue(modList);
+    var build = parseResult.GetRequiredValue(buildPath);
+    ModGame(unityEditorPath, projectPath, monoPath, build, apkPath, modFile);
     return 0;
 });
 
 ParseResult parseResult = rootCommand.Parse(args);
 parseResult.Invoke();
+
 
