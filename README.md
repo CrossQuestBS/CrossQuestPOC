@@ -26,7 +26,7 @@ https://github.com/CrossQuestBS/OculusPatcher
 
 This mod updates the game assemblies to have Quest specific code.
 
-https://github.com/CrossQuestBS/QuestPatch
+https://github.com/CrossQuestBS/QuestPatcher
 
 ### CustomSongEnabler
 
