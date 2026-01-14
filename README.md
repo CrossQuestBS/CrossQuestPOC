@@ -14,6 +14,11 @@ This is a proof of concept for an alternative Beat Saber Quest modding ecosystem
 9. Clear Game Cache to delete cached IL2CPP Metadata
 10. Installs game to device
 
+## Demo video on Beat Saber 1.42.0
+https://github.com/user-attachments/assets/0468cbe5-4a7c-4181-9b87-d264d0d8f3b7
+
+
+
 ## Requirements to run
 * Beat Saber Quest APK 1.42.0
 * Beat Saber PC game (Available through cross-buy)
